@@ -13,6 +13,10 @@ Contributors
         :target: https://contributors.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
+.. image:: https://pyup.io/repos/github/pydanny/contributors/shield.svg
+     :target: https://pyup.io/repos/github/pydanny/contributors/
+     :alt: Updates
+
 A command-line script to get all the contributors for one or more GitHub projects.
 
 
