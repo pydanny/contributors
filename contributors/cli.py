@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 
 import click
 
 from .contributors import get_contribitors
 from contributors import __version__
+
+
+class EST(tzinfo):
+    def utcoffset(self, dt):
+      return timedelta(hours=-8)
+
+    def dst(self, dt):
+        return timedelta(0)
 
 
 @click.command(context_settings=dict(help_option_names=[u'-h', u'--help']))
@@ -22,10 +30,13 @@ from contributors import __version__
 def main(repo_names, since, until):
     """Console script for contributors"""
     if since is None:
-        since = datetime(2016, 6, 2)
+        since = datetime(2016, 6, 2, tzinfo=EST())
     if until is None:
-        until = datetime.now()
-    get_contribitors(repo_names, since=since, until=until)
+        until = datetime.now(EST())
+    output = get_contribitors(repo_names, since=since, until=until)
+    click.echo('\nSaving results to output.rst')
+    with open('output.rst', 'w') as f:
+        f.write(output)
 
 
 if __name__ == "__main__":

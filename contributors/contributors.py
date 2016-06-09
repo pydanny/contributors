@@ -43,12 +43,36 @@ def get_contribitors(repo_names, since=None, until=None):
     print('Starting aggregating sprinters across projects')
     for repo_name in repo_names.split(','):
         print('\nFetching data for', repo_name)
+
+        # Get the repo object from GitHub
         user_name, repo_name = repo_name.split('/')
         repo = gh.repository(user_name, repo_name)
+
+        # Get commit contributors
         for commit in repo.commits(since=since, until=until):
             print('.', end='', flush=True)
             if commit.author is not None:
                 contributors.add(str(commit.author))
+
+        # Get pull request contributors
+        for pull in repo.pull_requests():
+            # If the pull requests are before since, then break the search
+            if since and pull.created_at < since:
+                break
+            # If the pull requests are created after until, skip this record
+            if until and pull.created_at > until:
+                continue
+            contributors.add(str(pull.user))
+
+        # Get issue creators
+        for issue in repo.issues():
+            # If the issues are before since, then break the search
+            if since and issue.created_at < since:
+                break
+            # If the issues are created after until, skip this record
+            if until and issue.created_at > until:
+                continue
+            contributors.add(str(issue.user))
 
     print('\nBuilding output')
     for contributor in contributors:
