@@ -6,7 +6,7 @@ import os
 from setuptools import setup
 import sys
 
-version = "0.1.0"
+version = "0.2.0"
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -42,7 +42,7 @@ if sys.argv[-1] == 'tag':
 
 setup(
     name='contributors',
-    version='0.1.0',
+    version=version,
     description="A command-line script to get all the contributors for one or more GitHub projects.",
     long_description=readme + '\n\n' + history,
     author="Daniel Roy Greenfeld",
