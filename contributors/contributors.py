@@ -24,8 +24,17 @@ def get_contribitors(repo_names, since=None, until=None):
     """
     :param repo_names: List of GitHub repos, each named thus:
                         ['audreyr/cookiecutter', 'pydanny/contributors']
+    :param since: Only commits after this date will be returned. This is a
+                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+    :param until: Only commits before this date will be returned. This is a
+                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
     """
     gh = login(token=environ.get('GITHUB_API_SECRET'))
+
+    if gh.ratelimit_remaining < 1000:
+        proceed = input("Your GitHub rate limit is below 1000. Continue? (y/n)")
+        if proceed.lower() is not 'y':
+            return
 
     contributors = set([])
     links = ""
