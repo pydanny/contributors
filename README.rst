@@ -25,10 +25,26 @@ A command-line script to get all the contributors for one or more GitHub project
 * Documentation: https://contributors.readthedocs.io.
 
 
-Features
+Usage
 --------
 
-* TODO
+1. Add a `GITHUB_API_SECRET` to your environment variables
+2. `pip install contributors`
+3. Run the command:
+
+.. code-block:: bash
+
+  $ contributors audreyr/cookiecutter,pydanny/cached-property
+
+4. Wait while it processes
+5. Open `output.rst` in the same directory you ran the script.
+
+**Warning:** This may eat up a lot of GitHub bandwidth. If you are worred about that, do the following to limit the range of search:
+
+.. code-block:: bash
+
+  $ contributors audreyr/cookiecutter,pydanny/cached-property -s 20160602 -u 20160610
+
 
 Credits
 ---------
