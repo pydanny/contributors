@@ -6,6 +6,7 @@ import os
 from setuptools import setup
 import sys
 
+version = "0.1.0"
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
