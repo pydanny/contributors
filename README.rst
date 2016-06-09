@@ -44,6 +44,13 @@ Usage
 
   $ contributors audreyr/cookiecutter,pydanny/cached-property -s 20160602 -u 20160610
 
+Examples
+----------
+
+* `PyCon 2016 Cookiecutter sprint contributors`_
+
+
+.. _`PyCon 2016 Cookiecutter sprint contributors`: https://gist.github.com/pydanny/399a431fd91a25620a75a2ce99385566
 
 Credits
 ---------
