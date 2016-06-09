@@ -13,11 +13,6 @@ Contributors
         :target: https://contributors.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://requires.io/github/pydanny/contributors/requirements.svg?branch=master
-        :target: https://requires.io/github/pydanny/contributors/requirements?branch=master
-        :alt: Dependencies
-
-
 A command-line script to get all the contributors for one or more GitHub projects.
 
 
