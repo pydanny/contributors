@@ -29,15 +29,20 @@ class EST(tzinfo):
     u'-u', u'--until', default=None,
     help=u'Only commits before this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
-def main(repo_names, since, until):
+@click.option(
+    u'-f', u'--format', default='rst', type=click.Choice(['md', 'rst']),
+    help=u'Valid option are "rst" and "md"'
+)
+def main(repo_names, since, until, format):
     """Console script for contributors"""
+    filename = 'output.{}'.format(format)
     if since is None:
         since = datetime(2016, 6, 2, tzinfo=EST())
     if until is None:
         until = datetime.now(EST())
-    output = get_contribitors(repo_names, since=since, until=until)
-    click.echo('\nSaving results to output.rst')
-    with open('output.rst', 'w') as f:
+    output = get_contribitors(repo_names, since=since, until=until, format=format)
+    click.echo('\nSaving results to %s' % filename)
+    with open(filename, 'w') as f:
         f.write(output)
 
 

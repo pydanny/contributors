@@ -2,6 +2,8 @@
 History
 =======
 
+* Add support for generating output in either markdown or rst with ``-f`` option.
+
 0.2.0 (2016-06-09)
 ------------------
 
