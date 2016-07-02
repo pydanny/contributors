@@ -18,11 +18,13 @@ from __future__ import print_function
 
 from os import environ
 
-from github3 import login
+from github3 import GitHub
 
 
-gh = login(token=environ.get('GITHUB_API_SECRET'))
-assert gh, "Make sure GITHUB_API_SECRET is available in env var"
+gh = GitHub()
+token = environ.get('GITHUB_API_SECRET')
+if token:
+    gh.login(token=token)
 
 
 def get_markdown_output(contributors):
