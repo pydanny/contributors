@@ -95,7 +95,7 @@ def get_contribitors(repo_names, since=None, until=None, format='rst'):
 
     if gh.ratelimit_remaining < 1000:
         proceed = input("Your GitHub rate limit is below 1000. Continue? (y/n)")
-        if proceed.lower() is not 'y':
+        if proceed.lower() != 'y':
             return
 
     contributors = set([])
