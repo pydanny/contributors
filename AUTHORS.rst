@@ -11,4 +11,5 @@ Development Leads
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Saurabh Kumar / @theskumar
+* Jon Banafato / @jonafato
