@@ -33,9 +33,19 @@ class EST(tzinfo):
     u'-f', u'--format', default='rst', type=click.Choice(['md', 'rst']),
     help=u'Valid option are "rst" and "md"'
 )
-def main(repo_names, since, until, format):
+@click.option(
+    u'-o', u'--output', u'filename', default=None,
+    help=u'Output will be written to this file.'
+)
+def main(repo_names, since, until, format, filename):
     """Console script for contributors"""
-    filename = 'output.{}'.format(format)
+    # If the filename is not provided, build a default using the format
+    if filename is None:
+        filename = 'output.{}'.format(format)
+    # If the file extension of the filename provided by the user does
+    # not match the format provided, warn the user and continue.
+    if filename.rsplit('.', 1)[1] != format:
+        click.echo('Warning: file extension does not match output format')
     if since is None:
         since = datetime(2016, 6, 2, tzinfo=EST())
     if until is None:
