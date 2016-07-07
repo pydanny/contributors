@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import
 
 from datetime import datetime, tzinfo, timedelta
-
 import click
 
 from .contributors import get_contribitors
@@ -12,7 +10,7 @@ from contributors import __version__
 
 class EST(tzinfo):
     def utcoffset(self, dt):
-      return timedelta(hours=-8)
+        return timedelta(hours=-8)
 
     def dst(self, dt):
         return timedelta(0)
@@ -26,12 +24,12 @@ class EST(tzinfo):
     help=u'Only commits after this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
 @click.option(
-    u'-u', u'--until', default=None,
+    u'-u', u'--until', default=datetime.now(EST()),
     help=u'Only commits before this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
 @click.option(
-    u'-f', u'--format', default='rst', type=click.Choice(['md', 'rst']),
-    help=u'Valid option are "rst" and "md"'
+    u'-f', u'--format', default='rst', type=click.Choice(['md', 'rst', 'html']),
+    help=u'Valid option are "rst", "html" and "md"'
 )
 @click.option(
     u'-o', u'--output', u'filename', default=None,
@@ -47,7 +45,7 @@ def main(repo_names, since, until, format, filename):
     if filename.rsplit('.', 1)[1] != format:
         click.echo('Warning: file extension does not match output format')
     if since is None:
-        since = datetime(2016, 6, 2, tzinfo=EST())
+        since = datetime(2012, 6, 2, tzinfo=EST())
     if until is None:
         until = datetime.now(EST())
     output = get_contribitors(repo_names, since=since, until=until, format=format)

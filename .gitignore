@@ -1,3 +1,6 @@
+# output
+output.html
+output.md
 output.rst
 
 # Byte-compiled / optimized / DLL files
@@ -59,3 +62,4 @@ docs/_build/
 
 # PyBuilder
 target/
+
