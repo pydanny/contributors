@@ -7,6 +7,6 @@ tox==2.4.1
 coverage==4.2
 Sphinx==1.4.8
 
-pytest==3.0.3
+pytest==3.0.4
 github3.py==1.0.0a4
 Click>=6.0
