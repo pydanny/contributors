@@ -16,7 +16,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'github3.py==1.0.0a4'
+    'github3.py==1.0.0a4',
+    'python-gitlab',
 ]
 
 test_requirements = [

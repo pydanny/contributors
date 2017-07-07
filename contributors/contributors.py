@@ -16,16 +16,16 @@
 
 from __future__ import absolute_import, print_function
 
+from collections import namedtuple
 from os import environ
 
 from github3 import GitHub
+from gitlab import Gitlab
 
 from . import utils
 
-gh = GitHub()
-token = environ.get('GITHUB_API_SECRET')
-if token:
-    gh.login(token=token)
+
+User = namedtuple('User', ('name', 'login', 'html_url'))
 
 
 def get_html_output(contributors):
@@ -95,26 +95,66 @@ def get_output_text(contributors, format):
     return mapping[format](contributors)
 
 
-def get_contribitors(repo_names, since=None, until=None, format='rst'):
-    """
-    :param repo_names: List of GitHub repos, each named thus:
-                        ['audreyr/cookiecutter', 'pydanny/contributors']
-    :param since: Only commits after this date will be returned. This is a
-                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
-    :param until: Only commits before this date will be returned. This is a
-                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
-    """
+def gitlab_contributors(repo_names, since=None, until=None):
+    gitlab_token = environ.get('GITLAB_API_SECRET')
+    gl = Gitlab('https://gitlab.com', gitlab_token)
+
+    contributors = set()
+
+    for repo_name in repo_names:
+        repo = gl.projects.get(repo_name)
+
+        # Get commit contributors
+        for commit in repo.commits.list(since=since, until=until):
+            print('.', end='', flush=True)
+            if commit.author_name:
+                users = gl.users.search(query=commit.author_name)
+                if len(users) == 1:
+                    user = users[0]
+                    contributors.add(User(
+                        name=user.name,
+                        login=user.username,
+                        html_url=user.web_url,
+                    ))
+                # TODO: fall back to something else if we don't find a suitable
+                # user here. Is this approach even sane?
+
+        # Get issue creators
+        for issue in repo.issues.list(
+                state='closed', created_after=since, created_before=until):
+            contributors.add(User(
+                name=issue.author.name,
+                login=issue.author.username,
+                html_url=issue.author.web_url,
+            ))
+
+        # Get merge request creators
+        for merge_request in repo.mergerequests.list(
+                created_after=since, created_before=until):
+            if merge_request.state != 'open':
+                contributors.add(User(
+                    name=merge_request.author.name,
+                    login=merge_request.author.username,
+                    html_url=merge_request.author.web_url,
+                ))
+
+        contributors = sorted(contributors, key=lambda x: x.name.lower())
+        return contributors
+
+
+def github_contributors(repo_names, since=None, until=None):
+    gh = GitHub()
+    github_token = environ.get('GITHUB_API_SECRET')
+    if github_token:
+        gh.login(token=github_token)
+
+    contributors = set()
     if gh.ratelimit_remaining < 1000:
         proceed = input("Your GitHub rate limit is below 1000. Continue? (y/n)")
         if proceed.lower() != 'y':
-            return
+            return []
 
-    contributors = set([])
-
-    print('Starting aggregating sprinters across projects')
-    for repo_name in repo_names.split(','):
-        print('\nFetching data for', repo_name)
-
+    for repo_name in repo_names:
         # Get the repo object from GitHub
         user_name, repo_name = repo_name.split('/')
         repo = gh.repository(user_name, repo_name)
@@ -139,6 +179,27 @@ def get_contribitors(repo_names, since=None, until=None, format='rst'):
     print('\nFetching user info:')
     contributors = map(fetch_user, contributors)
     contributors = sorted(contributors, key=lambda x: x.name.lower() if x.name else x.login.lower())
+    return contributors
+
+
+def get_contribitors(
+        repo_names, since=None, until=None, format='rst', host='github'):
+    """
+    :param repo_names: List of GitHub repos, each named thus:
+                        ['audreyr/cookiecutter', 'pydanny/contributors']
+    :param since: Only commits after this date will be returned. This is a
+                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+    :param until: Only commits before this date will be returned. This is a
+                        timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+    """
+    supported_hosts = {
+        'github': github_contributors,
+        'gitlab': gitlab_contributors,
+    }
+
+    print('Starting aggregating sprinters across projects')
+    repo_names = repo_names.split(',')
+    contributors = supported_hosts[host](repo_names, since, until)
 
     print('\nBuilding output')
     return get_output_text(contributors, format)

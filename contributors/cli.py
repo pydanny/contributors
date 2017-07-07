@@ -35,7 +35,11 @@ class EST(tzinfo):
     u'-o', u'--output', u'filename', default=None,
     help=u'Output will be written to this file.'
 )
-def main(repo_names, since, until, format, filename):
+@click.option(
+    u'-h', u'--host', u'host', default=u'github', type=click.Choice(('github', 'gitlab')),
+    help=u'Hosting service where repositories are located.'
+)
+def main(repo_names, since, until, format, filename, host):
     """Console script for contributors"""
     # If the filename is not provided, build a default using the format
     if filename is None:
@@ -48,7 +52,8 @@ def main(repo_names, since, until, format, filename):
         since = datetime(2012, 6, 2, tzinfo=EST())
     if until is None:
         until = datetime.now(EST())
-    output = get_contribitors(repo_names, since=since, until=until, format=format)
+    output = get_contribitors(
+        repo_names, since=since, until=until, format=format, host=host)
     click.echo('\nSaving results to %s' % filename)
     with open(filename, 'w') as f:
         f.write(output)
