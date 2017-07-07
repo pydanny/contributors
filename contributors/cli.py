@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from datetime import datetime, tzinfo, timedelta
 import click
 
-from .contributors import get_contribitors
+from .contributors import get_contributors
 from contributors import __version__
 
 
@@ -48,7 +48,7 @@ def main(repo_names, since, until, format, filename):
         since = datetime(2012, 6, 2, tzinfo=EST())
     if until is None:
         until = datetime.now(EST())
-    output = get_contribitors(repo_names, since=since, until=until, format=format)
+    output = get_contributors(repo_names, since=since, until=until, format=format)
     click.echo('\nSaving results to %s' % filename)
     with open(filename, 'w') as f:
         f.write(output)
