@@ -4,8 +4,7 @@ from __future__ import absolute_import
 from datetime import datetime, tzinfo, timedelta
 import click
 
-from .contributors import get_contribitors_github
-# from .contributors import get_contributors_gitlab
+from .contributors import get_contributors_github
 from contributors import __version__
 
 
@@ -61,7 +60,7 @@ def main(repo_names, since, until, format, filename):
     # if platform == 'gitlab':
     #     output = get_contributors_gitlab(repo_names)
     # else:
-    output = get_contribitors_github(
+    output = get_contributors_github(
         repo_names, since=since, until=until, format=format)
     if output:
         click.echo('\nSaving results to %s' % filename)
