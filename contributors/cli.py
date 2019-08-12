@@ -4,8 +4,7 @@ from __future__ import absolute_import
 from datetime import datetime, tzinfo, timedelta
 import click
 
-from .contributors import get_contribitors_github
-# from .contributors import get_contributors_gitlab
+from .contributors import get_contribitors
 from contributors import __version__
 
 
@@ -22,29 +21,20 @@ class EST(tzinfo):
 @click.argument(u'repo_names')
 @click.option(
     u'-s', u'--since', default=None,
-    help=u'Only commits after this date will be returned. \
-        This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
+    help=u'Only commits after this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
 @click.option(
     u'-u', u'--until', default=datetime.now(EST()),
-    help=u'Only commits before this date will be returned. \
-        This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
+    help=u'Only commits before this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
 @click.option(
-    u'-f', u'--format', default='rst',
-    type=click.Choice(['md', 'rst', 'html']),
+    u'-f', u'--format', default='rst', type=click.Choice(['md', 'rst', 'html']),
     help=u'Valid option are "rst", "html" and "md"'
 )
 @click.option(
     u'-o', u'--output', u'filename', default=None,
     help=u'Output will be written to this file.'
 )
-# @click.option(
-#     u'--url', default=None, help=u'Please type in your repository url'
-# )
-# @click.option(
-#     u'-p', u'--platform', type=click.Choice(['github', 'gitlab'])
-# )
 def main(repo_names, since, until, format, filename):
     """Console script for contributors"""
     # If the filename is not provided, build a default using the format
@@ -58,15 +48,10 @@ def main(repo_names, since, until, format, filename):
         since = datetime(2012, 6, 2, tzinfo=EST())
     if until is None:
         until = datetime.now(EST())
-    # if platform == 'gitlab':
-    #     output = get_contributors_gitlab(repo_names)
-    # else:
-    output = get_contribitors_github(
-        repo_names, since=since, until=until, format=format)
-    if output:
-        click.echo('\nSaving results to %s' % filename)
-        with open(filename, 'w') as f:
-            f.write(output)
+    output = get_contribitors(repo_names, since=since, until=until, format=format)
+    click.echo('\nSaving results to %s' % filename)
+    with open(filename, 'w') as f:
+        f.write(output)
 
 
 if __name__ == "__main__":
