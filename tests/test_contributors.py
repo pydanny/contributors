@@ -7,13 +7,8 @@ test_contributors
 
 Tests for `contributors` module.
 """
-
-import pytest
-
-from contextlib import contextmanager
 from click.testing import CliRunner
 
-from contributors import contributors
 from contributors import cli
 
 
