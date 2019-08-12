@@ -116,7 +116,7 @@ def get_output_text(contributors, format):
     return mapping[format](contributors)
 
 
-def get_contribitors_github(repo_names, since=None, until=None, format='rst'):
+def get_contributors_github(repo_names, since=None, until=None, format='rst'):
     """
     :param repo_names: List of GitHub repos, each named thus:
                         ['audreyr/cookiecutter', 'pydanny/contributors']
