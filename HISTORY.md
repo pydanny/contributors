@@ -8,12 +8,12 @@ History
 ------------------
 
 -   Markdown support
+0.2.0 (2016-06-09)
+------------------
 -   Fix input equality check when rate-limited
 -   Allow unauthenticated GitHub API calls
 -   Support configurable output filenames
 
-0.2.0 (2016-06-09)
-------------------
 
 -   Added pull requests and issues
 -   Made datetime not niave
