@@ -25,8 +25,8 @@ class TestContributors(object):
         runner = CliRunner()
         help_result = runner.invoke(cli.main, ['--help'])
         assert help_result.exit_code == 0
-        assert '-h, --help            \
-             Show this message and exit.' in help_result.output
+        assert '-h, --help' in help_result.output
+        assert 'Show this message and exit.' in help_result.output
 
     @classmethod
     def teardown_class(cls):
