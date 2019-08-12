@@ -20,6 +20,8 @@ from os import environ
 
 from github3 import GitHub
 
+# from gitlab import Gitlab
+
 from . import utils
 
 gh = GitHub()
@@ -27,18 +29,29 @@ token = environ.get('GITHUB_API_SECRET')
 if token:
     gh.login(token=token)
 
+# gl_token = environ.get('GITLAB_API_SECRET')
+# if gl_token:
+#     gl = Gitlab(url='https://gitlab.com', private_token=gl_token)
+#     gl.auth()
+
 
 def get_html_output(contributors):
     column_size = 5
 
     def format_user_info(user):
         if user.name:
-            return template_with_name.format(name=user.name, link=user.html_url, username=user.login)
+            return template_with_name.format(
+                name=user.name,
+                link=user.html_url,
+                username=user.login)
         else:
-            return template_no_name.format(link=user.html_url, username=user.login)
+            return template_no_name.format(
+                link=user.html_url,
+                username=user.login)
 
     # generate html now
-    column_template = '    <td align=center><img width=100 src={photo}><br>{name}</td>\n'
+    column_template = '    <td align=center><img width=100 src={photo}>'
+    column_template += '<br>{name}</td>\n'
     template_with_name = '{name} (<a href={link}>@{username}</a>)'
     template_no_name = '<a href={link}>@{username}</a>'
 
@@ -46,7 +59,9 @@ def get_html_output(contributors):
     for row_data in utils.chunks(contributors, column_size):
         output += '  <tr>\n'
         for user in row_data:
-            output += column_template.format(photo=user.avatar_url, name=format_user_info(user))
+            output += column_template.format(
+                photo=user.avatar_url,
+                name=format_user_info(user))
         output += '  </tr>\n'
     output += '</table>\n'
     return output
@@ -60,9 +75,14 @@ def get_markdown_output(contributors):
     for user in contributors:
         print('.', end='', flush=True)
         if user.name.strip():
-            output.append(template_with_name.format(name=user.name, username=user.login, link=user.html_url))
+            output.append(template_with_name.format(
+                name=user.name,
+                username=user.login,
+                link=user.html_url))
         else:
-            output.append(template_no_name.format(username=user.login, link=user.html_url))
+            output.append(template_no_name.format(
+                username=user.login,
+                link=user.html_url))
 
     return '\n'.join(output) + '\n'
 
@@ -72,7 +92,8 @@ def get_rst_output(contributors):
     output = []
     for user in contributors:
         if user.name:
-            output.append("  * {name} (`@{username}`_)".format(name=user.name, username=user.login))
+            output.append("  * {name} (`@{username}`_)".format(
+                name=user.name, username=user.login))
         else:
             output.append("  * `@{username}`_".format(username=user.login))
 
@@ -95,7 +116,7 @@ def get_output_text(contributors, format):
     return mapping[format](contributors)
 
 
-def get_contribitors(repo_names, since=None, until=None, format='rst'):
+def get_contribitors_github(repo_names, since=None, until=None, format='rst'):
     """
     :param repo_names: List of GitHub repos, each named thus:
                         ['audreyr/cookiecutter', 'pydanny/contributors']
@@ -105,7 +126,8 @@ def get_contribitors(repo_names, since=None, until=None, format='rst'):
                         timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
     """
     if gh.ratelimit_remaining < 1000:
-        proceed = input("Your GitHub rate limit is below 1000. Continue? (y/n)")
+        proceed = input(
+            "Your GitHub rate limit is below 1000. Continue? (y/n)")
         if proceed.lower() != 'y':
             return
 
@@ -138,7 +160,15 @@ def get_contribitors(repo_names, since=None, until=None, format='rst'):
 
     print('\nFetching user info:')
     contributors = map(fetch_user, contributors)
-    contributors = sorted(contributors, key=lambda x: x.name.lower() if x.name else x.login.lower())
+    contributors = sorted(
+        contributors,
+        key=lambda x: x.name.lower() if x.name else x.login.lower())
 
     print('\nBuilding output')
     return get_output_text(contributors, format)
+
+
+# def get_contributors_gitlab(repo_name):
+#     project = gl.projects.get(repo_name)
+#     commits = project.commits.list()
+#     print(type(commits))
