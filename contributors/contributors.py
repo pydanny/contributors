@@ -18,13 +18,13 @@ from __future__ import absolute_import, print_function
 
 from os import environ
 
-from github3 import GitHub
+import github3
 
 # from gitlab import Gitlab
 
 from . import utils
 
-gh = GitHub()
+gh = github3.GitHub()
 token = environ.get('GITHUB_API_SECRET')
 if token:
     gh.login(token=token)
@@ -116,15 +116,27 @@ def get_output_text(contributors, format):
     return mapping[format](contributors)
 
 
-def get_contributors_github(repo_names, since=None, until=None, format='rst'):
+GITHUB_CONTRIB_TYPES = {"commit", "issue", "pr"}
+def get_contributors_github(repo_names, since=None,
+                            until=None, exclude=None, format='rst'):
     """
     :param repo_names: List of GitHub repos, each named thus:
                         ['audreyr/cookiecutter', 'pydanny/contributors']
     :param since: Only commits after this date will be returned. This is a
                         timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+    :param exclude: Exclude contributors of type.  A tuple containing one or
+                        more of of ['commit', 'issue', 'pr']
     :param until: Only commits before this date will be returned. This is a
                         timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
     """
+
+    for x in exclude:
+        if x not in GITHUB_CONTRIB_TYPES:
+            raise RuntimeError("Unknown contribution type: %s" %(x))
+
+    if all([x in exclude for x in GITHUB_CONTRIB_TYPES]):
+        raise RuntimeError("Can't exclude all of %s" %(GITHUB_CONTRIB_TYPES))
+
     if gh.ratelimit_remaining < 1000:
         proceed = input(
             "Your GitHub rate limit is below 1000. Continue? (y/n)")
@@ -142,17 +154,23 @@ def get_contributors_github(repo_names, since=None, until=None, format='rst'):
         repo = gh.repository(user_name, repo_name)
 
         # Get commit contributors
-        for commit in repo.commits(since=since, until=until):
-            print('.', end='', flush=True)
-            if commit.author is not None:
-                contributors.add(str(commit.author))
+        if not "commit" in exclude:
+            for commit in repo.commits(since=since, until=until):
+                print('.', end='', flush=True)
+                if commit.author is not None:
+                    contributors.add(str(commit.author))
 
         # Get pull-request/ issue creators
-        for issue in repo.issues(state='closed', since=since):
-            # If the issues are created after until, skip this record
-            if until and issue.created_at > until:
-                continue
-            contributors.add(str(issue.user))
+        if not all([x in exclude for x in ["issue", "pr"]]):
+            for issue in repo.issues(state='closed', since=since):
+                # If the issues are created after until, skip this record
+                if until and issue.created_at > until:
+                    continue
+                is_pr = isinstance(issue.pull_request(), github3.pulls.PullRequest)
+                if ( (is_pr and "pr" not in exclude)
+                    or ( (not is_pr) and "issue" not in exclude)
+                ):
+                    contributors.add(str(issue.user))
 
     def fetch_user(username):
         print('.', end='', flush=True)
