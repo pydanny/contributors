@@ -30,6 +30,10 @@ class EST(tzinfo):
         This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.'
 )
 @click.option(
+    u'-x', u'--exclude', multiple=True,
+    help="Exclude contributors of type (one of 'commit', 'issue', 'pr')"
+)
+@click.option(
     u'-f', u'--format', default='rst',
     type=click.Choice(['md', 'rst', 'html']),
     help=u'Valid option are "rst", "html" and "md"'
@@ -44,7 +48,7 @@ class EST(tzinfo):
 # @click.option(
 #     u'-p', u'--platform', type=click.Choice(['github', 'gitlab'])
 # )
-def main(repo_names, since, until, format, filename):
+def main(repo_names, since, until, exclude, format, filename):
     """Console script for contributors"""
     # If the filename is not provided, build a default using the format
     if filename is None:
@@ -61,7 +65,7 @@ def main(repo_names, since, until, format, filename):
     #     output = get_contributors_gitlab(repo_names)
     # else:
     output = get_contributors_github(
-        repo_names, since=since, until=until, format=format)
+        repo_names, since=since, until=until, exclude=exclude, format=format)
     if output:
         click.echo('\nSaving results to %s' % filename)
         with open(filename, 'w') as f:
